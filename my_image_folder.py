@@ -47,7 +47,7 @@ class ImageFolder(data.Dataset):
         self.mod = mod
         self.transform = transforms.Compose([
             # ValueError: empty range for randrange() (0,-59, -59)
-            # http://www.manongzj.com/blog/3-ijvagxsghnolbvx.html
+            # http://www.manongzj.com/blog/3-ijvagxsghnolbvx.html 文件大小太小超出切割范围
             transforms.RandomCrop((100, 100)),
             transforms.ToTensor(),
             transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])
