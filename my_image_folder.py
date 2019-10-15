@@ -1,3 +1,4 @@
+import torch
 import torch.utils.data as data
 import torchvision.transforms as transforms
 from PIL import Image
@@ -5,6 +6,7 @@ import os
 import os.path
 import numpy as np
 import matplotlib.pyplot as plt
+from random import shuffle
 
 
 IMG_EXTENSIONS = [
@@ -32,12 +34,12 @@ def make_dataset(dirt, rate):
                 path = os.path.join(root, fname)
                 item = (path, fname)
                 images.append(item)
-
+    shuffle(images)
     return images[0:int(len(images) * rate)], images[int(len(images) * rate):]
 
 
 def default_loader(path):
-    return Image.open(path)
+    return Image.open(path).convert('RGB')
 
 
 class ImageFolder(data.Dataset):
@@ -53,17 +55,27 @@ class ImageFolder(data.Dataset):
             transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])
 
     def __getitem__(self, index):
-        if self.mod == 'train':
+        if self.mod == 'train' or 'verification':
             path, target = self.imgs_train[index]
         else:
             path, target = self.imgs_test[index]
         img = self.loader(path)
+        print(path)
         image = self.transform(img)
-        target = int(target.split('_')[0])
-        return image, target
+
+        # 转成one_hot编码标签
+        # target = torch.tensor(np.array(), dtype=torch.int64)
+        # target_tensor = torch.LongTensor([[float(target.split('_')[0])]])  # 注意是[[]]
+        # target_hot = torch.zeros(1, 29).scatter_(1, target_tensor, 1)
+        if self.mod == 'train' or self.mod == 'test':
+            target = float(target.split('_')[0])
+            return image, target
+        if self.mod == 'verification':
+            return image, target
+
 
     def __len__(self):
-        if self.mod == 'train':
+        if self.mod == 'train' or self.mod == 'verification':
             return len(self.imgs_train)
         else:
             return len(self.imgs_test)

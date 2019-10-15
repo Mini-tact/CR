@@ -1,0 +1,6 @@
+File "/home/xx/.local/lib/python3.6/site-packages/torchvision/transforms/functional.py", line 208, in normalize
+    tensor.sub_(mean[:, None, None]).div_(std[:, None, None])
+RuntimeError: The size of tensor a (4) must match the size of tensor b (3) at non-singleton dimension 0
+解决方法:
+原因：图片中有RGBA的图片存在
+方法: image = Image.open(imagePath) , add .convert('RGB'). 在读取图片的代码中转化成RGB格式
