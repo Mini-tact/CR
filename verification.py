@@ -5,12 +5,12 @@ from torch.autograd import Variable
 import xlrd
 from my_image_folder import ImageFolder
 
-if __name__=='__main__':
-    dict_content = {}
-    dataset = ImageFolder('C:\CR\data\Test', split=1, mod='verification')
+def verification():
+    dict_content = {'FileName':'Code'}
+    dataset = ImageFolder('C:\CR_\data\Test', split=1, mod='verification')
     trainloader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=True, num_workers=0, pin_memory=True)
 
-    model = torch.load('C:\\CR\\net.pkl')
+    model = torch.load('C:\\CR_\\net.pkl')
     model.eval()
 
     for i, data in enumerate(trainloader, 0):
@@ -25,12 +25,14 @@ if __name__=='__main__':
         dict_content[file_name[0]] = outputs.item()
     print(dict_content)
 
-"""
-写入文件
-"""
-csvFile3 = open('C:\\CR\\verification.csv', 'w', newline='')
-writer2 = csv.writer(csvFile3)
-writer2.writerow('FileName', 'Code')
-for key in dict_content.keys():
-    writer2.writerow([key, dict_content[key]])
-csvFile3.close()
+    """
+    写入文件
+    """
+    csvFile3 = open('C:\\CR_\\verification.csv', 'w', newline='')
+    writer2 = csv.writer(csvFile3)
+    for key in dict_content.keys():
+        writer2.writerow([key, dict_content[key]])
+    csvFile3.close()
+
+if __name__ == "__main__":
+    verification()

@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from my_image_folder import ImageFolder
 from net_ieee import Net
+from verification import verification
+import torchvision.models as models
 
 loss_function = nn.MSELoss()
 function_loss_L1 = torch.nn.CrossEntropyLoss()  # 交叉熵损失函数
@@ -24,7 +26,7 @@ def t_training(testset, net):
             labels = labels.squeeze()
             # labels = labels.reshape(-1, 1)
             # labels = torch.zeros(200, 29).scatter_(1, labels.long(), 1)
-            outputs = net(inputs)
+            outputs = net(inputs.cuda())
             all_loss = all_loss + function_loss_L1(outputs.cpu(), labels.long())
     return all_loss/i
 
@@ -33,28 +35,29 @@ if __name__ == "__main__":
     losses_his = [[], []]
     train_acc = 0
     # 数据集加载
-    trainset = ImageFolder('C:\CR\data\Train', split=0.8, mod='train')
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=200, shuffle=True, num_workers=5, pin_memory=True)
-    testset = ImageFolder('C:\CR\data\Train', split=0.8, mod='test')
+    trainset = ImageFolder('C:\CR_\data\Train', split=0.8, mod='train')
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=200, shuffle=True, num_workers=6, pin_memory=True)
+    testset = ImageFolder('C:\CR_\data\Train', split=0.8, mod='test')
     # 模型加载
-    net = Net()
+    #net = Net()
+    net = models.resnet50() #pretrained=True
     # 使用CUDA训练模型
     if torch.cuda.is_available():
         net.cuda()
     # 初始化权重
-    nn.init.xavier_uniform_(net.conv1[0].weight.data, gain=1)
-    nn.init.constant_(net.conv1[0].bias.data, 0.1)
-    nn.init.xavier_uniform_(net.conv2[0].weight.data, gain=1)
-    nn.init.constant_(net.conv2[0].bias.data, 0.1)
-    nn.init.xavier_uniform_(net.conv3[0].weight.data, gain=1)
-    nn.init.constant_(net.conv3[0].bias.data, 0.1)
-    nn.init.xavier_uniform_(net.conv4[0].weight.data, gain=1)
-    nn.init.constant_(net.conv4[0].bias.data, 0.1)
+    # nn.init.xavier_uniform_(net.conv1[0].weight.data, gain=1)
+    # nn.init.constant_(net.conv1[0].bias.data, 0.1)
+    # nn.init.xavier_uniform_(net.conv2[0].weight.data, gain=1)
+    # nn.init.constant_(net.conv2[0].bias.data, 0.1)
+    # nn.init.xavier_uniform_(net.conv3[0].weight.data, gain=1)
+    # nn.init.constant_(net.conv3[0].bias.data, 0.1)
+    # nn.init.xavier_uniform_(net.conv4[0].weight.data, gain=1)
+    # nn.init.constant_(net.conv4[0].bias.data, 0.1)
     # 是指优化策略
     optimizer = optim.Adam(net.parameters(), lr=0.0001)  # 0.0001
 
     # 进入训练阶段
-    for epoch in range(100):
+    for epoch in range(50):
         train_loss = 0.0
         all_loss = 0.0
 
@@ -84,7 +87,7 @@ if __name__ == "__main__":
         losses_his[0].append(train_loss / i)
         losses_his[1].append(all_loss)
 
-    torch.save(net, 'C:\\CR\\net.pkl')
+    torch.save(net, 'C:\\CR_\\net_resnet50.pkl')
 
     """
     绘制误差图像
@@ -102,5 +105,6 @@ if __name__ == "__main__":
     plt.plot(losses_his[0], losses_his[1])
     plt.show()
 
-
+    # 验证集
+    verification()
 

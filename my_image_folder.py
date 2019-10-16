@@ -60,7 +60,6 @@ class ImageFolder(data.Dataset):
         else:
             path, target = self.imgs_test[index]
         img = self.loader(path)
-        print(path)
         image = self.transform(img)
 
         # 转成one_hot编码标签
