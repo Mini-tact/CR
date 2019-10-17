@@ -39,4 +39,4 @@ def verification(model):
     """
 
 if __name__ == "__main__":
-    verification('C:\\CR_\\model\\net_resnet50.pkl')
+    verification('C:\\CR_\\model\\net_googlenet.pkl')
