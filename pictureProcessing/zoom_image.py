@@ -8,16 +8,17 @@ if __name__=="__main__":
     img = np.asarray(img)
 
     # 设置阈值
-    threshold_value = 50
+    threshold_value = 115
     img_new = np.zeros((long, width))
 
     for i in range(long):
         for j in range(width):
-            if img[i][j] > threshold_value:
-                print(str(i)+'-'+str(j))
+            if img[j][i] > threshold_value:
                 img_new[i][j] = 1
 
     image = Image.fromarray(np.uint8(img_new))
     image.show()
 
-
+"""
+error
+"""

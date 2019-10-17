@@ -6,8 +6,9 @@ import torch.optim as optim
 import torch
 import matplotlib.pyplot as plt
 import numpy as np
+
+from model.net_ieee import Net
 from my_image_folder import ImageFolder
-from net_ieee import Net
 from verification import verification
 import torchvision.models as models
 
@@ -24,23 +25,21 @@ def t_training(testset, net):
             inputs, labels = data
             inputs = Variable(inputs)
             labels = labels.squeeze()
-            # labels = labels.reshape(-1, 1)
-            # labels = torch.zeros(200, 29).scatter_(1, labels.long(), 1)
             outputs = net(inputs.cuda())
             all_loss = all_loss + function_loss_L1(outputs.cpu(), labels.long())
     return all_loss/i
 
 if __name__ == "__main__":
-    start_time = time.time()
+    start_time = time.clock()
     losses_his = [[], []]
     train_acc = 0
     # 数据集加载
     trainset = ImageFolder('C:\CR_\data\Train', split=0.8, mod='train')
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=200, shuffle=True, num_workers=6, pin_memory=True)
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=500, shuffle=True, num_workers=6, pin_memory=True)
     testset = ImageFolder('C:\CR_\data\Train', split=0.8, mod='test')
     # 模型加载
     #net = Net()
-    net = models.resnet50() #pretrained=True
+    net = models.googlenet() #pretrained=True
     # 使用CUDA训练模型
     if torch.cuda.is_available():
         net.cuda()
@@ -57,7 +56,7 @@ if __name__ == "__main__":
     optimizer = optim.Adam(net.parameters(), lr=0.0001)  # 0.0001
 
     # 进入训练阶段
-    for epoch in range(50):
+    for epoch in range(120):
         train_loss = 0.0
         all_loss = 0.0
 
@@ -76,7 +75,7 @@ if __name__ == "__main__":
             labels = labels.squeeze()
             optimizer.zero_grad()
             outputs = net(inputs)
-            loss = function_loss_L1(outputs, labels.long())
+            loss = function_loss_L1(outputs.logits, labels.long())  # .logits
             train_loss += loss.item()
             loss.backward()
             optimizer.step()
@@ -87,7 +86,7 @@ if __name__ == "__main__":
         losses_his[0].append(train_loss / i)
         losses_his[1].append(all_loss)
 
-    torch.save(net, 'C:\\CR_\\net_resnet50.pkl')
+    torch.save(net, 'C:\\CR_\\model\\net_googlenet.pkl')
 
     """
     绘制误差图像
@@ -106,5 +105,6 @@ if __name__ == "__main__":
     plt.show()
 
     # 验证集
-    verification()
+    verification('C:\\CR_\\model\\net_googlenet.pkl')
+    print('模型训练时间为{}'.format(time.clock() - start_time))
 

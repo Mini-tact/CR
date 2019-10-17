@@ -4,3 +4,8 @@ RuntimeError: The size of tensor a (4) must match the size of tensor b (3) at no
 解决方法:
 原因：图片中有RGBA的图片存在
 方法: image = Image.open(imagePath) , add .convert('RGB'). 在读取图片的代码中转化成RGB格式
+
+
+AttributeError: 'GoogLeNetOutputs' object has no attribute 'log_softmax'
+原因：我们使用了CrossEntropyLoss 作为损失函数，而GoogLeNe默认的输出是 logits, aux_logits1, and aux_logits2.我们只需要logits
+方法:我们使用了CrossEntropyLoss（input.logits, label.long()） #input.logits
