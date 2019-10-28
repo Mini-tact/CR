@@ -34,29 +34,29 @@ if __name__ == "__main__":
     losses_his = [[], []]
     train_acc = 0
     # 数据集加载
-    trainset = ImageFolder('C:\CR_\data\Train', split=0.8, mod='train')
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=500, shuffle=True, num_workers=6, pin_memory=True)
-    testset = ImageFolder('C:\CR_\data\Train', split=0.8, mod='test')
+    trainset = ImageFolder('C:\CR_\data\img', split=0.8, mod='train')
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=100, shuffle=True, num_workers=5, pin_memory=True)
+    testset = ImageFolder('C:\CR_\data\img', split=0.8, mod='test')
     # 模型加载
-    #net = Net()
-    net = models.googlenet() #pretrained=True
+    net = Net()
+    #net = models.densenet121() #pretrained=True
     # 使用CUDA训练模型
     if torch.cuda.is_available():
         net.cuda()
-    # 初始化权重
-    # nn.init.xavier_uniform_(net.conv1[0].weight.data, gain=1)
-    # nn.init.constant_(net.conv1[0].bias.data, 0.1)
-    # nn.init.xavier_uniform_(net.conv2[0].weight.data, gain=1)
-    # nn.init.constant_(net.conv2[0].bias.data, 0.1)
-    # nn.init.xavier_uniform_(net.conv3[0].weight.data, gain=1)
-    # nn.init.constant_(net.conv3[0].bias.data, 0.1)
-    # nn.init.xavier_uniform_(net.conv4[0].weight.data, gain=1)
-    # nn.init.constant_(net.conv4[0].bias.data, 0.1)
+    #初始化权重
+    nn.init.xavier_uniform_(net.conv1[0].weight.data, gain=1)
+    nn.init.constant_(net.conv1[0].bias.data, 0.1)
+    nn.init.xavier_uniform_(net.conv2[0].weight.data, gain=1)
+    nn.init.constant_(net.conv2[0].bias.data, 0.1)
+    nn.init.xavier_uniform_(net.conv3[0].weight.data, gain=1)
+    nn.init.constant_(net.conv3[0].bias.data, 0.1)
+    nn.init.xavier_uniform_(net.conv4[0].weight.data, gain=1)
+    nn.init.constant_(net.conv4[0].bias.data, 0.1)
     # 是指优化策略
     optimizer = optim.Adam(net.parameters(), lr=0.0001)  # 0.0001
 
     # 进入训练阶段
-    for epoch in range(120):
+    for epoch in range(200):
         train_loss = 0.0
         all_loss = 0.0
 
@@ -75,7 +75,7 @@ if __name__ == "__main__":
             labels = labels.squeeze()
             optimizer.zero_grad()
             outputs = net(inputs)
-            loss = function_loss_L1(outputs.logits, labels.long())  # .logits
+            loss = function_loss_L1(outputs, labels.long())  # GOOGLENET .logits
             train_loss += loss.item()
             loss.backward()
             optimizer.step()
@@ -86,7 +86,7 @@ if __name__ == "__main__":
         losses_his[0].append(train_loss / i)
         losses_his[1].append(all_loss)
 
-    torch.save(net, 'C:\\CR_\\model\\net_googlenet.pkl')
+    torch.save(net, 'C:\\CR_\\model\\net_ieee_10_28.pkl')
 
     """
     绘制误差图像
@@ -105,6 +105,6 @@ if __name__ == "__main__":
     plt.show()
 
     # 验证集
-    verification('C:\\CR_\\model\\net_googlenet.pkl')
+    # verification('C:\\CR_\\model\\net_googlenet.pkl')
     print('模型训练时间为{}'.format(time.clock() - start_time))
 

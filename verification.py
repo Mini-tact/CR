@@ -1,8 +1,14 @@
 import csv
-
+import torchvision.transforms as transforms
 import torch
 from torch.autograd import Variable
 from my_image_folder import ImageFolder
+import numpy as np
+
+# transforms = transforms.Compose([
+#             transforms.RandomResizedCrop(300),
+#             transforms.ToTensor(),
+#             transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])
 
 def verification(model):
     dict_content = {'FileName':'Code'}
@@ -14,11 +20,8 @@ def verification(model):
 
     for i, data in enumerate(trainloader, 0):
         # torch.cuda.empty_cache()
-        if torch.cuda.is_available():
-            inputs, file_name = data
-            inputs= Variable(inputs).cuda()
-        else:
-            inputs = Variable(data)
+        inputs, file_name = data
+        inputs = Variable(inputs).cuda()
         outputs = model(inputs)
         outputs = torch.topk(outputs, 1)[1].squeeze(1)
         dict_content[file_name[0]] = outputs.item()

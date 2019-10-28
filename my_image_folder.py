@@ -39,7 +39,7 @@ def make_dataset(dirt, rate):
 
 
 def default_loader(path):
-    return Image.open(path).convert('RGB')
+    return Image.open(path)
 
 
 class ImageFolder(data.Dataset):
@@ -50,17 +50,23 @@ class ImageFolder(data.Dataset):
         self.transform = transforms.Compose([
             # ValueError: empty range for randrange() (0,-59, -59)
             # http://www.manongzj.com/blog/3-ijvagxsghnolbvx.html 文件大小太小超出切割范围
-            transforms.RandomCrop((100, 100)),
+            #transforms.RandomResizedCrop(300),
+            transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
-            transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])
+            #transforms.Normalize(mean=0.5, std=0.5)
+        ])
 
     def __getitem__(self, index):
         if self.mod == 'train' or 'verification':
             path, target = self.imgs_train[index]
         else:
             path, target = self.imgs_test[index]
-        img = self.loader(path)
-        image = self.transform(img)
+        image = self.loader(path)
+        if self.mod == 'verification':
+            image = np.array(image)
+            pass
+        else:
+            image = self.transform(image)
 
         # 转成one_hot编码标签
         # target = torch.tensor(np.array(), dtype=torch.int64)
